@@ -45,14 +45,39 @@ class PolicyIterationAgent(ValueIterationAgent):
         You can consider that the values converged when the
         biggest change in value is smaller than 
         self.value_iteration_tolerance."""
-        util.raiseNotDefined()
+
+        # Selon le Slide 15 de Markov decison process 2.
+        i_maxChange = 0
+        b_converged = False
+        while not b_converged:
+            tempCounter = util.Counter()
+            for state in self.mdp.getStates():
+                if self.mdp.isTerminal(state):
+                    tempCounter[state] = 0
+                else:
+                    tempCounter[state] = self.getQValue(state, self.getPolicy(state))
+                    i_maxChange = max(i_maxChange, abs(tempCounter[state] - self.values[state]))
+            for state in self.mdp.getStates():
+                self.values[state] = tempCounter[state]
+
+            if i_maxChange < self.value_iteration_tolerance:
+                b_converged = True
+            i_maxChange = 0
 
     def updatePolicy(self):
         """In this method you should update the agent's policy, 
         stored in self.policy, and return a boolean 
         indicating whether the policy has converged."""
-        # TODO
-        util.raiseNotDefined()
+
+        # Selon le Slide 15 de Markov decison process 2, et avec une discussion entre plusieurs étudiants.
+
+        b_converged = True
+        for state in self.mdp.getStates():
+            max_action = self.computeActionFromValues(state)
+            if self.policy[state] != max_action:
+                b_converged = False
+                self.policy[state] = max_action
+        return b_converged
        
 
     def getPolicy(self, state):
